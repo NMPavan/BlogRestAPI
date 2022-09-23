@@ -10,12 +10,14 @@ public class PostNotFoundException extends RuntimeException {
 	private String fieldName;
 	private String fieldValue;
 
-	public PostNotFoundException(String resourceName, String fieldName, String fieldValue) {
-		super(String.format("%s not found with %s : '%s'", resourceName, fieldName, fieldValue));
+	public PostNotFoundException(String resourceName, String fieldName, String postId) {
+		super(String.format("%s not found with %s : '%s'", resourceName, fieldName, postId));
 		this.resourceName = resourceName;
 		this.fieldName = fieldName;
-		this.fieldValue = fieldValue;
+		this.fieldValue = postId;
 	}
+
+
 
 	public String getResourceName() {
 		return resourceName;

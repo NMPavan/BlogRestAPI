@@ -29,11 +29,12 @@ public class PostServiceImpl implements PostService {
 
 	private PostRepoistory repo;
 
-	public PostServiceImpl(PostRepoistory repo) {
-		this.repo = repo;
-	}
+	private ModelMapper mapper;
 
-	// private ModelMapper mapper;
+	public PostServiceImpl(PostRepoistory repo, ModelMapper mapper) {
+		this.repo = repo;
+		this.mapper = mapper;
+	}
 
 	@Override
 	public PostDTO createPost(PostDTO postDto) {
@@ -49,38 +50,26 @@ public class PostServiceImpl implements PostService {
 	}
 
 	private PostDTO entityToDTO(Post newPost) {
-		// PostDTO postDto = mapper.map(post, PostDTO.class);
-		PostDTO postDTOObj = new PostDTO();
-		postDTOObj.setId(newPost.getId());
-		postDTOObj.setTitle(newPost.getTitle());
-		postDTOObj.setDescription(newPost.getDescription());
-		postDTOObj.setContent(newPost.getContent());
-		return postDTOObj;
+		PostDTO postDto = mapper.map(newPost, PostDTO.class);
+
+//		PostDTO postDTOObj = new PostDTO();
+//		postDTOObj.setId(newPost.getData());
+//		postDTOObj.setTitle(newPost.getTitle());
+//		postDTOObj.setDescription(newPost.getDescription());
+//		postDTOObj.setContent(newPost.getContent());
+		return postDto;
 	}
 
 	private Post mapToEntity(PostDTO postDto) {
 
-		// Post post = mapper.map(postDto, Post.class);
-
-		Post post = new Post();
-		post.setTitle(postDto.getTitle());
-		post.setDescription(postDto.getDescription());
-		post.setContent(postDto.getContent());
-
+		Post post = mapper.map(postDto, Post.class);
 		return post;
 
 	}
 
-	public PostResponse getAllPostDTO(int pageNo, int pageSize,String sortBy,String sortDir) {
-//		Pageable pageableOne = (Pageable) PageRequest.of(pageNo, pageSize);
-//		Page<Post> posts = repo.findAll(pageableOne);
-		// , String sortBy, String sortDir
-		
-		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending(): Sort.by(sortBy).descending();
-
-//		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
-//				: Sort.by(sortBy).descending();
-
+	public PostResponse getAllPostDTO(int pageNo, int pageSize, String sortBy, String sortDir) {
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+				: Sort.by(sortBy).descending();
 		PageRequest pageable = PageRequest.of(pageNo, pageSize, sort);
 
 		Page<Post> posts = repo.findAll(pageable);
@@ -102,7 +91,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public PostDTO getPostDTOById(Long id) {
-		Post post = repo.findById(id).orElseThrow(() -> new PostNotFoundException("Post", "Id", String.valueOf(id)));
+		Post post = repo.findById(id).get();
 		PostDTO postDto = entityToDTO(post);
 		return postDto;
 	}
@@ -125,11 +114,4 @@ public class PostServiceImpl implements PostService {
 		repo.deleteById(id);
 
 	}
-
-//	@Override
-//	public List<PostDTO> getAllPostDTO(int pageNo, int pageSize) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
 }
