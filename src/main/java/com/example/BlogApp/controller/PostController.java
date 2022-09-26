@@ -3,12 +3,15 @@ package com.example.BlogApp.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,8 +32,7 @@ import com.example.BlogApp.utils.AppConstants;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Slf4j
-@RequestMapping("/posts")
+@RequestMapping("api/v1/posts")
 public class PostController {
 
 	@Autowired
@@ -42,12 +44,13 @@ public class PostController {
 		this.repo = repo;
 	}
 
-	@PostMapping("/api/v1/post")
-	public ResponseEntity<PostDTO> createPost(@RequestBody PostDTO postDto) {
+	@PreAuthorize("hasRole('USER')")
+	@PostMapping("/post")
+	public ResponseEntity<PostDTO> createPost(@Valid @RequestBody PostDTO postDto) {
 		return new ResponseEntity<PostDTO>(service.createPost(postDto), HttpStatus.CREATED);
 	}
 
-	@GetMapping("api/v1/allPosts")
+	@GetMapping("/allPosts")
 	public PostResponse getAllPostsData(
 			@RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
 			@RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
@@ -56,17 +59,20 @@ public class PostController {
 		return service.getAllPostDTO(pageNo, pageSize,sortBy,sortDir);
 	}
 
-	@GetMapping("api/v1/post/{id}")
+	@GetMapping("/{id}")
 	public PostDTO getPostById(@PathVariable Long id) {
 		return service.getPostDTOById(id);
 	}
 
-	@PutMapping("api/v1/update/{id}")
-	public ResponseEntity<PostDTO> updatePost(@RequestBody PostDTO postdto, @PathVariable Long id) {
+	
+	@PreAuthorize("hasRole('USER')")
+	@PutMapping("update/{id}")
+	public ResponseEntity<PostDTO> updatePost(@Valid @RequestBody PostDTO postdto, @PathVariable Long id) {
 		return new ResponseEntity<PostDTO>(service.updatePostData(id, postdto), HttpStatus.OK);
 	}
 
-	@DeleteMapping("api/v1/del/{id}")
+//	@PreAuthorize("hasRole('ADMIN')")
+	@DeleteMapping("del/{id}")
 	public ResponseEntity<String> deletePost(@PathVariable Long id) {
 		service.deletePost(id);
 		String message = "Post id:" + id + "deleted successfully";

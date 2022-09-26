@@ -59,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
 	public List<CommentDTO> getAllCommentsByPostId(Long postId) {
 
 		// retrieve comments by postId
-		List<CommentEntity> comments = commentRepo.findByPostData(postId);
+		List<CommentEntity> comments = commentRepo.findByPostId(postId);
 		// convert list of comment entities to list of comment dto's
 		return comments.stream().map(comment -> entityToDTO(comment)).collect(Collectors.toList());
 	}
